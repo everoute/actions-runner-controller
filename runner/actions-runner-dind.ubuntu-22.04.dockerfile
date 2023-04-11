@@ -29,6 +29,18 @@ RUN apt-get update -y \
     zip \
     && rm -rf /var/lib/apt/lists/*
 
+# custome apt package
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+    make \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# kubectl
+RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
+    && curl -fLo /usr/bin/kubectl https://dl.k8s.io/release/v1.26.0/bin/linux/${ARCH}/kubectl \
+    && chmod +x /usr/bin/kubectl
+
 # Runner user
 RUN adduser --disabled-password --gecos "" --uid $RUNNER_USER_UID runner \
     && groupadd docker --gid $DOCKER_GROUP_GID \
@@ -82,12 +94,8 @@ RUN set -vx; \
 RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
     && if [ "$ARCH" = "amd64" ] || [ "$ARCH" = "i386" ]; then export ARCH=x86_64 ; fi \
-    && mkdir -p /usr/libexec/docker/cli-plugins \
-    && curl -fLo /usr/libexec/docker/cli-plugins/docker-compose https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-${ARCH} \
-    && chmod +x /usr/libexec/docker/cli-plugins/docker-compose \
-    && ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/bin/docker-compose \
-    && which docker-compose \
-    && docker compose version
+    && curl -fLo /usr/bin/docker-compose https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-${ARCH} \
+    && chmod +x /usr/bin/docker-compose
 
 # We place the scripts in `/usr/bin` so that users who extend this image can
 # override them with scripts of the same name placed in `/usr/local/bin`.
@@ -112,6 +120,10 @@ RUN echo "PATH=${PATH}" > /etc/environment \
 
 # No group definition, as that makes it harder to run docker.
 USER runner
+
+RUN mkdir -p $HOME/.docker/cli-plugins/
+ADD https://github.com/docker/buildx/releases/download/v0.10.3/buildx-v0.10.3.linux-amd64  /home/runner/.docker/cli-plugins/docker-buildx
+RUN sudo chmod +x $HOME/.docker/cli-plugins/docker-buildx
 
 ENTRYPOINT ["/bin/bash", "-c"]
 CMD ["entrypoint-dind.sh"]
