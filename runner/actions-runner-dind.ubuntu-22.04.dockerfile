@@ -109,6 +109,8 @@ COPY docker-shim.sh /usr/local/bin/docker
 # Configure hooks folder structure.
 COPY hooks /etc/arc/hooks/
 
+COPY buildx-config.toml /etc/arc/config/
+
 VOLUME /var/lib/docker
 
 # Add the Python "User Script Directory" to the PATH
