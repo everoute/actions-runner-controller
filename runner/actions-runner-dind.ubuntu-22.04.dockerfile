@@ -35,6 +35,7 @@ RUN apt-get update -y \
     make \
     build-essential \
     ssh \
+    iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
 # kubectl
