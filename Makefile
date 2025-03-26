@@ -23,7 +23,7 @@ KUBE_RBAC_PROXY_VERSION ?= v0.11.0
 SHELLCHECK_VERSION ?= 0.8.0
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
-CRD_OPTIONS ?= "crd:generateEmbeddedObjectMeta=true"
+CRD_OPTIONS ?= "crd:generateEmbeddedObjectMeta=true,allowDangerousTypes=true"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -87,7 +87,7 @@ test-with-deps: kube-apiserver etcd kubectl
 # Build manager binary
 manager: generate fmt vet
 	go build -o bin/manager main.go
-	go build -o bin/github-runnerscaleset-listener ./cmd/githubrunnerscalesetlistener
+	go build -o bin/github-runnerscaleset-listener ./cmd/ghalistener
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet manifests
@@ -320,7 +320,7 @@ ifeq (, $(wildcard $(GOBIN)/controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.14.0 ;\
+	go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.17.2 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 endif
