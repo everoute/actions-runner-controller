@@ -4,7 +4,7 @@ group default {
 
 variable TAG_SUFFIX { default = "latest" }
 variable RUNNER_VERSION { default = "2.323.0" }
-variable RUNNER_CONTAINER_HOOKS_VERSION { default = "0.6.2" }
+variable RUNNER_CONTAINER_HOOKS_VERSION { default = "0.7.0" }
 variable DOCKER_VERSION { default = "24.0.7" }
 
 target actions-runner-dind-ubuntu-22-04 {
