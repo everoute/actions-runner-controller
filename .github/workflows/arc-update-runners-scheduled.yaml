@@ -152,4 +152,4 @@ jobs:
           git push -u origin HEAD
 
       - name: Create pull request
-        run: gh pr create -f -l "runners update"
+        run: gh pr create -f -l "runners update" -r zwtop,wu-cl
