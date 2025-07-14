@@ -42,7 +42,7 @@ target actions-runner-openeuler-20-03 {
   }
   tags      = ["registry.smtx.io/action-runner/openeuler-20.03:${TAG_SUFFIX}"]
   platforms = ["linux/amd64","linux/arm64"]
-  output    = ["type=docker"]
+  output    = ["type=registry"]
 }
 
 target actions-runner-tencentos-3 {
