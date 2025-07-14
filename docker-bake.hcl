@@ -1,5 +1,9 @@
 group default {
-  targets = ["actions-runner-dind-ubuntu-22-04"]
+  targets = [
+  "actions-runner-dind-ubuntu-22-04",
+  "actions-runner-openeuler-20-03",
+  "actions-runner-tencentos-3",
+  "actions-runner-centos-7"]
 }
 
 variable TAG_SUFFIX { default = "latest" }
@@ -26,3 +30,47 @@ target actions-runner-dind-ubuntu-22-04 {
   platforms = ["linux/amd64"]
   output    = ["type=registry"]
 }
+
+target actions-runner-openeuler-20-03 {
+  context     = "runner/"
+  contexts = {
+  }
+  dockerfile = "actions-runner.openeuler-20.03.dockerfile"
+  args = {
+    RUNNER_VERSION                 = RUNNER_VERSION
+    RUNNER_CONTAINER_HOOKS_VERSION = RUNNER_CONTAINER_HOOKS_VERSION
+  }
+  tags      = ["registry.smtx.io/action-runner/openeuler-20.03:${TAG_SUFFIX}"]
+  platforms = ["linux/amd64","linux/arm64"]
+  output    = ["type=docker"]
+}
+
+target actions-runner-tencentos-3 {
+  context     = "runner/"
+  contexts = {
+  }
+  dockerfile = "actions-runner.tencentos-3.dockerfile"
+  args = {
+    RUNNER_VERSION                 = RUNNER_VERSION
+    RUNNER_CONTAINER_HOOKS_VERSION = RUNNER_CONTAINER_HOOKS_VERSION
+  }
+  tags      = ["registry.smtx.io/action-runner/tencentos-3:${TAG_SUFFIX}"]
+  platforms = ["linux/amd64","linux/arm64"]
+  output    = ["type=registry"]
+}
+
+target actions-runner-centos-7 {
+  context     = "runner/"
+  ulimits = [
+    "nofile=1048576:1048576"
+  ]
+  dockerfile = "actions-runner.centos-7.dockerfile"
+  args = {
+    RUNNER_VERSION                 = RUNNER_VERSION
+    RUNNER_CONTAINER_HOOKS_VERSION = RUNNER_CONTAINER_HOOKS_VERSION
+  }
+  tags      = ["registry.smtx.io/action-runner/centos-7:${TAG_SUFFIX}"]
+  platforms = ["linux/amd64"]
+  output    = ["type=registry"]
+}
+
