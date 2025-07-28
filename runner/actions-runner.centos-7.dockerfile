@@ -21,12 +21,17 @@ RUN yum install -y \
     python3-sphinx libbpf-devel unbound unbound-devel python3-six python3-sortedcontainers \
     rdma-core-devel numactl-devel libpcap-devel systemtap-sdt-devel jq git unzip
 
-RUN yum install -y sudo meson python3-pyelftools doxygen zlib-devel
+RUN yum install -y sudo python3-pyelftools doxygen zlib-devel
+RUN python3 -m pip install meson==0.60.0
 
 RUN yum install -y lbzip2 gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel wget
 RUN wget https://mirrors.aliyun.com/gnu/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz && \
     tar -zxvf ./gcc-7.5.0.tar.gz
 WORKDIR /gcc-7.5.0
+RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2
+RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/mpfr-3.1.4.tar.bz2
+RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/mpc-1.0.3.tar.gz
+RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/isl-0.16.1.tar.bz2
 RUN ./contrib/download_prerequisites
 RUN mkdir ./build && cd ./build && \
     ../configure --prefix=/usr --enable-languages=c,c++ --disable-multilib && \
@@ -116,12 +121,12 @@ RUN wget https://ftp.gnu.org/gnu/glibc/glibc-2.28.tar.gz && \
     cd glibc-2.28 && \
     mkdir build && cd build && \
     ../configure --prefix=/usr/glibc-2.28 --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin && \
-    make && \
+    make -j$(nproc) && \
     make install
 RUN rm -rf /glibc-2.28 && rm -rf glibc-2.28.tar.gz
 
 RUN yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
-RUN yum -y install git
+RUN yum -y install git ninja-build
 
 RUN patchelf --set-interpreter /usr/glibc-2.28/lib/ld-linux-x86-64.so.2 --set-rpath '/usr/glibc-2.28/lib:/lib64:/usr/lib' \
     /runnertmp/externals/node20/bin/node
