@@ -2,6 +2,12 @@ group default {
   targets = ["actions-runner-dind-ubuntu-22-04"]
 }
 
+group multi {
+  targets = ["actions-runner-openeuler-20-03",
+             "actions-runner-tencentos-3",
+             "actions-runner-centos-7"]
+}
+
 variable TAG_SUFFIX { default = "latest" }
 variable RUNNER_VERSION { default = "2.327.0" }
 variable RUNNER_CONTAINER_HOOKS_VERSION { default = "0.7.0" }

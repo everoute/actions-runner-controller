@@ -17,4 +17,14 @@ jobs:
           password: ${{ secrets.HARBOR_PUSH_TOKEN }}
 
       - name: Build and push latest image
-        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main"
+        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build default
+
+      - name: Login registry.smtx.io
+        uses: docker/login-action@v2
+        with:
+          registry: registry.smtx.io
+          username: robot$action-runner+build-ci
+          password: ${{ secrets.HARBOR_ACTION_RUNNER_PUSH_TOKEN }}
+
+      - name: Build and push latest image
+        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build multi
