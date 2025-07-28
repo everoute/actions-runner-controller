@@ -133,7 +133,7 @@ RUN echo "PATH=${PATH}" > /etc/environment \
 USER runner
 
 RUN mkdir -p $HOME/.docker/cli-plugins/
-ADD https://github.com/docker/buildx/releases/download/v0.11.2/buildx-v0.11.2.linux-amd64  /home/runner/.docker/cli-plugins/docker-buildx
+ADD https://github.com/docker/buildx/releases/download/v0.24.0/buildx-v0.24.0.linux-amd64  /home/runner/.docker/cli-plugins/docker-buildx
 RUN sudo chmod +x $HOME/.docker/cli-plugins/docker-buildx
 
 ENTRYPOINT ["/bin/bash", "-c"]
