@@ -25,6 +25,7 @@ jobs:
   build-multi:
     runs-on: [self-hosted, pod]
     strategy:
+      fail-fast: false
       matrix:
         distos: ["openeuler", "tencentos", "centos"]
     steps:
