@@ -10,7 +10,13 @@ jobs:
     runs-on: [self-hosted, pod]
     steps:
       - name: Set up Docker Buildx
-        run: sudo wget -O /home/runner/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.24.0/buildx-v0.24.0.linux-amd64
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 10
+          polling_interval_seconds: 20
+          command: |
+            sudo wget -O /home/runner/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.24.0/buildx-v0.24.0.linux-amd64
 
       - name: Login registry.smtx.io
         uses: docker/login-action@v2
@@ -20,7 +26,13 @@ jobs:
           password: ${{ secrets.HARBOR_PUSH_TOKEN }}
 
       - name: Build and push latest image
-        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build default
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 360
+          max_attempts: 10
+          polling_interval_seconds: 20
+          command: |
+            docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build default
   
   build-multi:
     runs-on: [self-hosted, pod]
@@ -30,7 +42,13 @@ jobs:
         distos: ["openeuler", "tencentos", "centos"]
     steps:
       - name: Set up Docker Buildx
-        run: sudo wget -O /home/runner/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.24.0/buildx-v0.24.0.linux-amd64
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 10
+          polling_interval_seconds: 20
+          command: |
+            sudo wget -O /home/runner/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.24.0/buildx-v0.24.0.linux-amd64
 
       - name: Login registry.smtx.io
         uses: docker/login-action@v2
@@ -46,4 +64,4 @@ jobs:
           max_attempts: 10
           polling_interval_seconds: 20
           command: |
-            docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build ${{ matrix.distros }}
+            docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build ${{ matrix.distos }}
