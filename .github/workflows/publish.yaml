@@ -40,4 +40,10 @@ jobs:
           password: ${{ secrets.HARBOR_ACTION_RUNNER_PUSH_TOKEN }}
 
       - name: Build and push latest image
-        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build ${{ matrix.distros }}
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 360
+          max_attempts: 10
+          polling_interval_seconds: 20
+          command: |
+            docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build ${{ matrix.distros }}
