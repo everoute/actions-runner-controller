@@ -88,6 +88,8 @@ WORKDIR /
 RUN rm -f autoconf-2.71.tar.gz \
     && rm -rf /autoconf-2.71
 
+RUN yum install -y sshpass
+
 RUN yum clean all
 
 USER runner

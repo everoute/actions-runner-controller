@@ -131,6 +131,8 @@ RUN yum -y install git ninja-build
 RUN patchelf --set-interpreter /usr/glibc-2.28/lib/ld-linux-x86-64.so.2 --set-rpath '/usr/glibc-2.28/lib:/lib64:/usr/lib' \
     /runnertmp/externals/node20/bin/node
 
+RUN yum install -y sshpass
+
 RUN yum clean all
 
 USER runner

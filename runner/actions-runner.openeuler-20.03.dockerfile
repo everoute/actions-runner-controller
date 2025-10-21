@@ -82,6 +82,8 @@ RUN echo "PATH=${PATH}" > /etc/environment \
 
 RUN sed -i 's/%dist %{nil}/%dist .oe1/g' /etc/rpm/macros.dist
 
+RUN yum install -y sshpass
+
 RUN yum clean all
 
 USER runner
