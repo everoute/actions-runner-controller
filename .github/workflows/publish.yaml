@@ -24,6 +24,9 @@ jobs:
   
   build-multi:
     runs-on: [self-hosted, pod]
+    strategy:
+      matrix:
+        distos: ["openeuler", "tencentos", "centos"]
     steps:
       - name: Set up Docker Buildx
         run: sudo wget -O /home/runner/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v0.24.0/buildx-v0.24.0.linux-amd64
@@ -36,4 +39,4 @@ jobs:
           password: ${{ secrets.HARBOR_ACTION_RUNNER_PUSH_TOKEN }}
 
       - name: Build and push latest image
-        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build multi
+        run: docker buildx bake "https://github.com/everoute/actions-runner-controller.git#main" --call build ${{ matrix.distros }}

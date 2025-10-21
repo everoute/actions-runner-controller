@@ -2,10 +2,16 @@ group default {
   targets = ["actions-runner-dind-ubuntu-22-04"]
 }
 
-group multi {
-  targets = ["actions-runner-openeuler-20-03",
-             "actions-runner-tencentos-3",
-             "actions-runner-centos-7"]
+group openeuler {
+  targets = ["actions-runner-openeuler-20-03"]
+}
+
+group tencentos {
+  targets = ["actions-runner-tencentos-3"]
+}
+
+group centos {
+  targets = ["actions-runner-centos-7"]
 }
 
 variable TAG_SUFFIX { default = "latest" }
