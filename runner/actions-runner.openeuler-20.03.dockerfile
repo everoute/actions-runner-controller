@@ -14,7 +14,7 @@ RUN yum install -y \
     python3-sphinx libbpf-devel unbound unbound-devel python3-six python3-sortedcontainers \
     rdma-core-devel numactl-devel libpcap-devel systemtap-sdt-devel jq git unzip
 
-RUN yum install -y sudo meson python3-pyelftools doxygen zlib-devel
+RUN yum install -y sudo meson python3-pyelftools doxygen zlib-devel python3-pip
 
 RUN python3 -m pip install meson==0.60.0
 # Download latest git-lfs version
