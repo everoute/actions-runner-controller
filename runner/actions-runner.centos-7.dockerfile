@@ -9,9 +9,11 @@ ARG RUNNER_USER_UID=1001
 
 
 RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' \
-    -e "s|^#baseurl=http://mirror.centos.org/centos/\$releasever|baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos-vault/7.9.2009|g" \
-    -e "s|^#baseurl=http://mirror.centos.org/\$contentdir/\$releasever|baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos-vault/7.9.2009|g" \
-    -i /etc/yum.repos.d/CentOS-*.repo; 
+    -e "s|^#baseurl=http://mirror.centos.org/centos/\$releasever|baseurl=https://mirrors.aliyun.com/centos-vault/7.9.2009|g" \
+    -e "s|^#baseurl=http://mirror.centos.org/\$contentdir/\$releasever|baseurl=https://mirrors.aliyun.com/centos-vault/7.9.2009|g" \
+    -i /etc/yum.repos.d/CentOS-*.repo; \
+    sed -i 's/^enabled=.*/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf || true; \
+    { echo 'timeout=300'; echo 'minrate=1'; echo 'retries=20'; } >> /etc/yum.conf;
 
 RUN yum clean all && yum makecache
 RUN yum install -y epel-release
@@ -84,7 +86,9 @@ RUN mkdir /opt/hostedtoolcache \
     && chmod g+rwx /opt/hostedtoolcache
 
 RUN cd "$RUNNER_ASSETS_DIR" \
-    && curl -fLo runner-container-hooks.zip https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip \
+    && hooks_url="https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip" \
+    && curl -fL --retry 10 --retry-all-errors --retry-delay 3 --connect-timeout 30 --max-time 600 -o runner-container-hooks.zip "${hooks_url}" \
+    && test -s runner-container-hooks.zip \
     && unzip ./runner-container-hooks.zip -d ./k8s \
     && rm -f runner-container-hooks.zip
 
@@ -125,8 +129,7 @@ RUN wget https://ftp.gnu.org/gnu/glibc/glibc-2.28.tar.gz && \
     make install
 RUN rm -rf /glibc-2.28 && rm -rf glibc-2.28.tar.gz
 
-RUN yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
-RUN yum -y install git ninja-build
+RUN endpoint_repo_rpm="https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm" && if yum -y install "${endpoint_repo_rpm}"; then yum -y --setopt=endpoint.skip_if_unavailable=true install git ninja-build; else yum -y install git ninja-build; fi
 
 RUN patchelf --set-interpreter /usr/glibc-2.28/lib/ld-linux-x86-64.so.2 --set-rpath '/usr/glibc-2.28/lib:/lib64:/usr/lib' \
     /runnertmp/externals/node20/bin/node
