@@ -10,8 +10,8 @@ ARG RUNNER_USER_UID=1001
 RUN set -eux; \
     sed -i \
       -e 's|^metalink=|#metalink=|g' \
-      -e 's|https://repo.openeuler.org/|https://mirrors.aliyun.com/openeuler/|g' \
-      -e 's|http://repo.openeuler.org/|https://mirrors.aliyun.com/openeuler/|g' \
+      -e 's|https://repo.openeuler.org/|https://mirrors.cernet.edu.cn/openeuler/|g' \
+      -e 's|http://repo.openeuler.org/|https://mirrors.cernet.edu.cn/openeuler/|g' \
       /etc/yum.repos.d/openEuler.repo; \
     sed -i \
       -e '/^\[debuginfo\]/,/^$/ s/^enabled=.*/enabled=0/' \
@@ -22,10 +22,11 @@ RUN set -eux; \
       echo 'timeout=300'; \
       echo 'minrate=1'; \
       echo 'retries=20'; \
+      echo 'max_parallel_downloads=1'; \
     } >> /etc/yum.conf
 
 RUN yum clean all && yum makecache
-RUN yum install -y \
+RUN yum install -y --setopt=max_parallel_downloads=1 \
     rpm-build gcc gcc-c++ autoconf automake libtool systemd-units openssl openssl-devel \
     python3-devel desktop-file-utils groff graphviz checkpolicy selinux-policy-devel \
     python3-sphinx libbpf-devel unbound unbound-devel python3-six python3-sortedcontainers \
@@ -70,7 +71,7 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
 RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && if [ "$ARCH" = "arm64" ]; then export ARCH=aarch64 ; fi \
     && if [ "$ARCH" = "amd64" ] || [ "$ARCH" = "i386" ]; then export ARCH=x86_64 ; fi \
-    && rpm -Uvh https://mirrors.aliyun.com/openeuler/openEuler-22.03-LTS/OS/${ARCH}/Packages/autoconf-2.71-2.oe2203.noarch.rpm
+    && rpm -Uvh https://mirrors.cernet.edu.cn/openeuler/openEuler-22.03-LTS/OS/${ARCH}/Packages/autoconf-2.71-2.oe2203.noarch.rpm
 
 
 ENV RUNNER_TOOL_CACHE=/opt/hostedtoolcache

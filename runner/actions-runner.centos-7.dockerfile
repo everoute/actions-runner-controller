@@ -9,8 +9,8 @@ ARG RUNNER_USER_UID=1001
 
 
 RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' \
-    -e "s|^#baseurl=http://mirror.centos.org/centos/\$releasever|baseurl=https://mirrors.aliyun.com/centos-vault/7.9.2009|g" \
-    -e "s|^#baseurl=http://mirror.centos.org/\$contentdir/\$releasever|baseurl=https://mirrors.aliyun.com/centos-vault/7.9.2009|g" \
+    -e "s|^#baseurl=http://mirror.centos.org/centos/\$releasever|baseurl=https://mirrors.cernet.edu.cn/centos-vault/7.9.2009|g" \
+    -e "s|^#baseurl=http://mirror.centos.org/\$contentdir/\$releasever|baseurl=https://mirrors.cernet.edu.cn/centos-vault/7.9.2009|g" \
     -i /etc/yum.repos.d/CentOS-*.repo; \
     sed -i 's/^enabled=.*/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf || true; \
     { echo 'timeout=300'; echo 'minrate=1'; echo 'retries=20'; } >> /etc/yum.conf;
@@ -26,19 +26,14 @@ RUN yum install -y \
 RUN yum install -y sudo python3-pyelftools doxygen zlib-devel
 RUN python3 -m pip install meson==0.60.0
 
-RUN yum install -y lbzip2 gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel wget
+RUN yum install -y lbzip2 gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel curl
 RUN set -eux; \
     gcc_tarball="gcc-7.5.0.tar.gz"; \
     curl -fL --retry 10 --retry-delay 3 --connect-timeout 30 --max-time 1200 \
-      -o "./${gcc_tarball}" "https://mirrors.aliyun.com/gnu/gcc/gcc-7.5.0/${gcc_tarball}"; \
+      -o "./${gcc_tarball}" "https://mirrors.cernet.edu.cn/gnu/gcc/gcc-7.5.0/${gcc_tarball}"; \
     test -s "./${gcc_tarball}"; \
     tar -zxvf "./${gcc_tarball}"
 WORKDIR /gcc-7.5.0
-RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2
-RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/mpfr-3.1.4.tar.bz2
-RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/mpc-1.0.3.tar.gz
-RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/isl-0.16.1.tar.bz2
-RUN ./contrib/download_prerequisites
 RUN mkdir ./build && cd ./build && \
     ../configure --prefix=/usr --enable-languages=c,c++ --disable-multilib && \
     make -j$(nproc) && make install
@@ -77,7 +72,9 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && ./bin/installdependencies.sh \
     && yum install -y libyaml-devel
 
-RUN wget https://ftp.gnu.org/gnu/autoconf/autoconf-2.71.tar.gz && tar -zxvf autoconf-2.71.tar.gz
+RUN curl -fL --retry 10 --retry-delay 3 --connect-timeout 30 --max-time 600 \
+    -o autoconf-2.71.tar.gz https://mirrors.cernet.edu.cn/gnu/autoconf/autoconf-2.71.tar.gz && \
+    tar -zxvf autoconf-2.71.tar.gz
 WORKDIR /autoconf-2.71
 RUN ./configure --prefix=/usr
 RUN make && make install
@@ -91,7 +88,7 @@ RUN mkdir /opt/hostedtoolcache \
 
 RUN cd "$RUNNER_ASSETS_DIR" \
     && hooks_url="https://github.com/actions/runner-container-hooks/releases/download/v${RUNNER_CONTAINER_HOOKS_VERSION}/actions-runner-hooks-k8s-${RUNNER_CONTAINER_HOOKS_VERSION}.zip" \
-    && curl -fL --retry 10 --retry-all-errors --retry-delay 3 --connect-timeout 30 --max-time 600 -o runner-container-hooks.zip "${hooks_url}" \
+    && curl -fL --retry 10 --retry-delay 3 --connect-timeout 30 --max-time 600 -o runner-container-hooks.zip "${hooks_url}" \
     && test -s runner-container-hooks.zip \
     && unzip ./runner-container-hooks.zip -d ./k8s \
     && rm -f runner-container-hooks.zip
@@ -112,7 +109,8 @@ RUN echo "PATH=${PATH}" > /etc/environment \
     && echo "ImageOS=${ImageOS}" >> /etc/environment
 
 RUN yum install bison patchelf -y
-RUN wget http://ftp.gnu.org/pub/gnu/make/make-4.2.tar.gz && \
+RUN curl -fL --retry 10 --retry-delay 3 --connect-timeout 30 --max-time 600 \
+    -o make-4.2.tar.gz https://mirrors.cernet.edu.cn/gnu/make/make-4.2.tar.gz && \
     tar -xzvf make-4.2.tar.gz && \
     cd make-4.2/ && \
     mkdir build && cd build && \
@@ -124,7 +122,8 @@ RUN wget http://ftp.gnu.org/pub/gnu/make/make-4.2.tar.gz && \
 RUN rm -f make-4.2.tar.gz \
     && rm -rf /make-4.2
 
-RUN wget https://ftp.gnu.org/gnu/glibc/glibc-2.28.tar.gz && \
+RUN curl -fL --retry 10 --retry-delay 3 --connect-timeout 30 --max-time 600 \
+    -o glibc-2.28.tar.gz https://mirrors.cernet.edu.cn/gnu/glibc/glibc-2.28.tar.gz && \
     tar -xzvf glibc-2.28.tar.gz && \
     cd glibc-2.28 && \
     mkdir build && cd build && \
@@ -133,7 +132,7 @@ RUN wget https://ftp.gnu.org/gnu/glibc/glibc-2.28.tar.gz && \
     make install
 RUN rm -rf /glibc-2.28 && rm -rf glibc-2.28.tar.gz
 
-RUN endpoint_repo_rpm="https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm" && if yum -y install "${endpoint_repo_rpm}"; then yum -y --setopt=endpoint.skip_if_unavailable=true install git ninja-build; else yum -y install git ninja-build; fi
+RUN yum -y install git ninja-build
 
 RUN patchelf --set-interpreter /usr/glibc-2.28/lib/ld-linux-x86-64.so.2 --set-rpath '/usr/glibc-2.28/lib:/lib64:/usr/lib' \
     /runnertmp/externals/node20/bin/node
