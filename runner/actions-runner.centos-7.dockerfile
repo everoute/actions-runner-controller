@@ -27,8 +27,12 @@ RUN yum install -y sudo python3-pyelftools doxygen zlib-devel
 RUN python3 -m pip install meson==0.60.0
 
 RUN yum install -y lbzip2 gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel wget
-RUN wget https://mirrors.aliyun.com/gnu/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz && \
-    tar -zxvf ./gcc-7.5.0.tar.gz
+RUN set -eux; \
+    gcc_tarball="gcc-7.5.0.tar.gz"; \
+    curl -fL --retry 10 --retry-delay 3 --connect-timeout 30 --max-time 1200 \
+      -o "./${gcc_tarball}" "https://mirrors.aliyun.com/gnu/gcc/gcc-7.5.0/${gcc_tarball}"; \
+    test -s "./${gcc_tarball}"; \
+    tar -zxvf "./${gcc_tarball}"
 WORKDIR /gcc-7.5.0
 RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/gmp-6.1.0.tar.bz2
 RUN wget http://gcc.gnu.org/pub/gcc/infrastructure/mpfr-3.1.4.tar.bz2
