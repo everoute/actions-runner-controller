@@ -134,8 +134,12 @@ RUN rm -rf /glibc-2.28 && rm -rf glibc-2.28.tar.gz
 
 RUN yum -y install git ninja-build
 
-RUN patchelf --set-interpreter /usr/glibc-2.28/lib/ld-linux-x86-64.so.2 --set-rpath '/usr/glibc-2.28/lib:/lib64:/usr/lib' \
-    /runnertmp/externals/node20/bin/node
+RUN for node in node20 node24; do \
+        patchelf --set-interpreter /usr/glibc-2.28/lib/ld-linux-x86-64.so.2 \
+            --set-rpath '/usr/glibc-2.28/lib:/lib64:/usr/lib' \
+            "$RUNNER_ASSETS_DIR/externals/$node/bin/node" && \
+        "$RUNNER_ASSETS_DIR/externals/$node/bin/node" --version || exit 1; \
+    done
 
 RUN yum install -y sshpass
 
