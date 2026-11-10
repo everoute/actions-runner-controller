@@ -7,6 +7,17 @@ ARG CHANNEL=stable
 ARG DUMB_INIT_VERSION=1.2.5
 ARG RUNNER_USER_UID=1001
 
+RUN set -eux; \
+    sed -Ei \
+      -e 's#https?://mirrors\.tencent\.com#https://mirrors.cloud.tencent.com#g' \
+      -e '/mirrors\.tencentyun\.com/d' \
+      /etc/yum.repos.d/*.repo; \
+    { \
+      echo 'timeout=300'; \
+      echo 'minrate=1'; \
+      echo 'retries=20'; \
+    } >> /etc/yum.conf
+
 RUN yum clean all && yum makecache
 RUN yum install -y \
     rpm-build gcc gcc-c++ autoconf automake libtool systemd-units openssl openssl-devel \
